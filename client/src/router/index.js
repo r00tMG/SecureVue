@@ -5,6 +5,8 @@ import Admin from '@/views/Admin/Admin.vue'
 import User from '@/views/User/User.vue'
 import EditUsers from '@/views/Admin/EditUsers.vue'
 import RolesCreate from '@/views/Admin/RolesCreate.vue'
+import EditRoles from '@/views/Admin/EditRoles.vue'
+import EditProfile from '@/views/User/EditProfile.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -39,11 +41,22 @@ const router = createRouter({
     },
     {
       path: '/roles/create',
-      name: 'create',
+      name: 'roles/create',
       component: RolesCreate,
       meta: {requiresAuth: true}
+    },
+    {
+      path: '/roles/:id/edit',
+      name: 'roles/edit',
+      component: EditRoles,
+      meta: {requiresAuth: true}
+    },
+    {
+      path: '/profile/:id/edit',
+      name: 'profile/edit',
+      component: EditProfile,
+      meta: {requiresAuth: true}
     }
-
   ]
 })
 router.beforeEach((to, from, next) => {

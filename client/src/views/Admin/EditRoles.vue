@@ -1,45 +1,71 @@
 <script>
+import Navbar from '@/components/Navbar.vue'
 import { onMounted, ref } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import axios from 'axios'
-import { useRouter } from 'vue-router'
 
 export default {
-  name: 'RolesCreate',
+  name: 'EditRoles',
+  components: { Navbar },
   setup(){
     const name = ref('')
     const display_name = ref('')
     const description = ref('')
     const selectPermissions = ref([])
     const getPermissions = ref([])
+    const role = ref([])
     const router = useRouter()
     let token = localStorage.getItem('token')
-    /*onMounted(async () => {
-      const r = await axios.get('http://localhost:8000/api/roles',{
-        headers: {'Accept':'application/json'}
-      })
-      getRoles.value = await r.data
-      console.log(getRoles.value.roles[0])
 
-    })*/
+    const route = useRoute()
+    //console.log(route.params.id)
     onMounted(async () => {
-      const r = await axios.get('http://localhost:8000/api/permissions',{
+      const r = await axios.get(`http://localhost:8000/api/roles/${route.params.id}`,{
         headers: {
           'Accept':'application/json',
           'Authorization':`Bearer ${token}`
         }
       })
-      getPermissions.value = await r.data
-      console.log(getPermissions.value[0].name)
-
+      role.value = await r.data
+      console.log(role.value.role.name)
+      name.value = role.value.role.name
+      display_name.value = role.value.role.display_name
+      description.value = role.value.role.description
+      selectPermissions.value = role.value.role.permissions
+      console.log(name.value,display_name.value,description.value,selectPermissions.value)
     })
-    const onRole = async () => {
+    // Collection des roles
+    /*onMounted(async () => {
+      const r = await axios.get('http://localhost:8000/api/roles',{
+        headers: {
+          'Accept':'application/json',
+          'Authorization':`Bearer ${token}`
+        }
+      })
+      getRoles.value = await r.data
+      // console.log(getRoles.value.roles[0])
+
+    })*/
+
+    // Collection des permissions
+    onMounted(async () => {
+       const r = await axios.get('http://localhost:8000/api/permissions',{
+         headers: {
+           'Accept':'application/json'
+         }
+       })
+       getPermissions.value = await r.data
+      // console.log(getPermissions.value[0].name)
+
+     })
+
+    //
+    const onSubmit = async () => {
       try{
-        const response = await axios.post('http://localhost:8000/api/roles', {
+        const response = await axios.put(`http://localhost:8000/api/roles/${route.params.id}`,{
           name:name.value,
           display_name: display_name.value,
           description: description.value,
-         // password_confirmation:password_confirmation.value,
-          // roles:selectRoles.value,
           permissions:selectPermissions.value
         },{
           headers: {
@@ -49,18 +75,18 @@ export default {
 
         })
 
-        const data = response.data
-        console.log(data.value)
-        if (data)
+        role.value =await response.data
+        console.log(role.value)
+        if(role)
         {
-          alert("Vous vous êtes enregistré avec succés")
+          alert('L\'utilisateur a été bien modifié')
           await router.push('/admin')
         }else{
-          alert('L\'enregistrement a échoué, veuillez rééssayer')
+          alert('Modification échoué, Rééssayer')
         }
 
       }catch (e) {
-        console.log('Erreur: Connexion échoué')
+        console.log('Erreur: Modification échoué')
       }
 
     }
@@ -69,53 +95,45 @@ export default {
       display_name,
       description,
       selectPermissions,
+      onSubmit,
       getPermissions,
-      onRole
+      role
     }
   }
 }
 </script>
 
 <template>
-
+  <Navbar />
   <div class="kotak_login">
-    <p class="tulisan_login">Register</p>
+    <p class="tulisan_login">Modifier un Utilisateur</p>
 
     <img src="https://freedesignfile.com/upload/2017/07/Hand-drawn-coffee-logos-design-vector-set-07.jpg" alt="coffee">
 
-    <form @submit.prevent="onRole">
+    <form @submit.prevent="onSubmit">
       <div class="form-group mb-3">
         <label>name</label>
         <input type="text" v-model="name" name="name" class="form_login" placeholder="Name..">
       </div>
-
       <div class="form-group mb-3">
         <label>Display Name</label>
         <input type="text" v-model="display_name" name="display_name" class="form_login" placeholder="Display Name..">
       </div>
       <div class="form-group mb-3">
-        <label>Description</label>
-        <input type="text" v-model="description" name="display_name" class="form_login" placeholder="Description..">
+        <label>Display Name</label>
+        <input type="text" v-model="description" name="description" class="form_login" placeholder="Description..">
       </div>
-      <!--
-      <div class="form-group mb-3">
-         <label>Role(s): </label>
-         <select class="form-select" name="roles" v-model="selectRoles" id="roles" multiple>
-           <option v-for="getRole in getRoles.roles" :key="getRole.id" :value="getRole.name">{{getRole.name}}</option>
-         </select>
-       </div>
-       -->
+
       <div class="form-group mb-3">
         <label>Permission(s): </label>
         <select class="form-select" name="permissions" v-model="selectPermissions" id="permissions" multiple>
           <option v-for="getPermission in getPermissions" :key="getPermissions.id" :value="getPermission.name">{{getPermission.name}}</option>
         </select>
       </div>
-      <input type="submit" class="tombol_login" value="Create">
+      <input type="submit" class="tombol_login" value="Update">
     </form>
 
   </div>
-
 
 </template>
 

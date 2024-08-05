@@ -10,10 +10,15 @@ export default {
   name: 'Admin',
   components: { RolesTable, EditUsers, UsersTable, Navbar },
   setup(){
-    const users = ref([])
     const role = localStorage.getItem('role')
     console.log(JSON.parse(role))
+    const roleAdmin = JSON.parse(role)[1].name
+    const roleSuper = JSON.parse(role)[0].name
+    return{
+     roleAdmin,
+      roleSuper,
 
+    }
   }
 }
 </script>
@@ -22,7 +27,7 @@ export default {
   <body>
 <Navbar />
   <div class="container about-school text-center">
-    <div class="row my-5">
+    <div class="row my-5" v-if="roleSuper || roleAdmin">
       <h1 class="wow bounceInUp animated lead ">
         SecureVue
       </h1>
@@ -34,14 +39,14 @@ export default {
           <li class="color-green col-lg-4">
             <a href="#2b" data-toggle="tab"><i class="fa fa-bus"></i>Rôles</a>
           </li>
-          <li class="color-red col-lg-4">
+<!--          <li class="color-red col-lg-4">
             <a href="#3b" data-toggle="tab"><i class="fa fa-futbol-o"></i>Tap 3</a>
-          </li>
+          </li>-->
         </ul>
-        <div class="tab-content clearfix">
+        <div class="tab-content clearfix" >
           <div class="tab-pane active" id="1b">
             <h3>Gestion des Utilisateurs</h3>
-            <UsersTable />
+            <UsersTable  />
           </div>
           <div class="tab-pane " id="2b">
             <h3><router-link to="/roles/create" class="btn btn-sm bg-primary">Create</router-link> Gestion des Rôles</h3>
@@ -52,6 +57,9 @@ export default {
           </div>
         </div>
       </div>
+    </div>
+    <div class="tab-pane bg-danger w-50 m-auto" v-else>
+      <p class="text-center">Vous n'êtes pas autorisé à accéder sur page</p>
     </div>
   </div>
   </body>

@@ -26,10 +26,12 @@ export default {
         {
           localStorage.setItem('token',data.token)
           localStorage.setItem('role',JSON.stringify(data.user.role))
+          localStorage.setItem('user',JSON.stringify(data.user))
           await router.push('/admin')
         }else if(data.token && data.user.role[0].name === "user"){
           localStorage.setItem('token',data.token)
-          localStorage.setItem('role',data.user)
+          localStorage.setItem('role',JSON.stringify(data.user.role))
+          localStorage.setItem('user',JSON.stringify(data.user))
           await router.push('/users')
         }else {
           alert('Authentification échouée')

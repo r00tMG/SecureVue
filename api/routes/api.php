@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\api\AuthController;
+use App\Http\Controllers\api\RoleController;
 use App\Http\Controllers\api\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -24,8 +25,8 @@ Route::get('permissions',[\App\Http\Controllers\PermissionController::class,'ind
 
 //Route::get('/users/{user}',[UserController::class,'show']);
 
-    Route::apiResource('roles',\App\Http\Controllers\api\RoleController::class);
 Route::group(['middleware' => ['auth:sanctum']],function () {
+    Route::apiResource('roles',RoleController::class);
     Route::resource('users',UserController::class);
 
 });
