@@ -4,17 +4,15 @@ import axios from 'axios'
 import { useRouter } from 'vue-router'
 
 export default {
-  name: 'Register',
+  name: 'RolesCreate',
   setup(){
     const name = ref('')
-    const email = ref('')
-    const password = ref('')
-    const password_confirmation = ref('')
-    const selectRoles = ref([])
+    const display_name = ref('')
+    const description = ref('')
     const selectPermissions = ref([])
-    const getRoles = ref([])
     const getPermissions = ref([])
     const router = useRouter()
+    let token = localStorage.getItem('token')
     /*onMounted(async () => {
       const r = await axios.get('http://localhost:8000/api/roles',{
         headers: {'Accept':'application/json'}
@@ -22,24 +20,27 @@ export default {
       getRoles.value = await r.data
       console.log(getRoles.value.roles[0])
 
-    })
+    })*/
     onMounted(async () => {
       const r = await axios.get('http://localhost:8000/api/permissions',{
-        headers: {'Accept':'application/json'}
+        headers: {
+          'Accept':'application/json',
+          'Authorization':`Bearer ${token}`
+        }
       })
       getPermissions.value = await r.data
       console.log(getPermissions.value[0].name)
 
-    })*/
-    const onRegister = async () => {
+    })
+    const onRole = async () => {
       try{
-        const response = await axios.post('http://localhost:8000/api/register', {
+        const response = await axios.post('http://localhost:8000/api/roles', {
           name:name.value,
-          email: email.value,
-          password: password.value,
-          password_confirmation:password_confirmation.value,
-         // roles:selectRoles.value,
-         // permissions:selectPermissions.value
+          display_name: display_name.value,
+          description: description.value,
+         // password_confirmation:password_confirmation.value,
+          // roles:selectRoles.value,
+          permissions:selectPermissions.value
         },{
           headers: { 'Content-Type':'application/json' },
 
@@ -62,14 +63,11 @@ export default {
     }
     return{
       name,
-      email,
-      password,
-      password_confirmation,
-      selectRoles,
+      display_name,
+      description,
       selectPermissions,
-      onRegister,
-      getRoles,
-      getPermissions
+      getPermissions,
+      onRole
     }
   }
 }
@@ -82,42 +80,35 @@ export default {
 
     <img src="https://freedesignfile.com/upload/2017/07/Hand-drawn-coffee-logos-design-vector-set-07.jpg" alt="coffee">
 
-    <form @submit.prevent="onRegister">
+    <form @submit.prevent="onRole">
       <div class="form-group mb-3">
         <label>name</label>
         <input type="text" v-model="name" name="name" class="form_login" placeholder="Name..">
       </div>
 
       <div class="form-group mb-3">
-        <label>Email</label>
-        <input type="text" v-model="email" name="email" class="form_login" placeholder="Email..">
-      </div>
-
-      <div class="form-group mb-3">
-      <label>Password</label>
-      <input type="password" v-model="password"	name="password" class="form_login" placeholder="Password ..">
+        <label>Display Name</label>
+        <input type="text" v-model="display_name" name="display_name" class="form_login" placeholder="Display Name..">
       </div>
       <div class="form-group mb-3">
-
-      <label>Password Confirmation</label>
-      <input type="password" v-model="password_confirmation"	name="password_confirmation" class="form_login" placeholder="Password ..">
+        <label>Description</label>
+        <input type="text" v-model="description" name="display_name" class="form_login" placeholder="Description..">
       </div>
-<!--      <div class="form-group mb-3">
-      <label>Role(s): </label>
-      <select class="form-select" name="roles" v-model="selectRoles" id="roles" multiple>
-        <option v-for="getRole in getRoles.roles" :key="getRole.id" :value="getRole.name">{{getRole.name}}</option>
-      </select>
-      </div>
+      <!--
       <div class="form-group mb-3">
-      <label>Permission(s): </label>
-      <select class="form-select" name="permissions" v-model="selectPermissions" id="permissions" multiple>
-        <option v-for="getPermission in getPermissions" :key="getPermissions.id" :value="getPermission.name">{{getPermission.name}}</option>
-      </select>
-      </div>-->
-
-
-
-      <input type="submit" class="tombol_login" value="Register">
+         <label>Role(s): </label>
+         <select class="form-select" name="roles" v-model="selectRoles" id="roles" multiple>
+           <option v-for="getRole in getRoles.roles" :key="getRole.id" :value="getRole.name">{{getRole.name}}</option>
+         </select>
+       </div>
+       -->
+      <div class="form-group mb-3">
+        <label>Permission(s): </label>
+        <select class="form-select" name="permissions" v-model="selectPermissions" id="permissions" multiple>
+          <option v-for="getPermission in getPermissions" :key="getPermissions.id" :value="getPermission.name">{{getPermission.name}}</option>
+        </select>
+      </div>
+      <input type="submit" class="tombol_login" value="Create">
     </form>
 
   </div>

@@ -3,6 +3,8 @@ import Login from '@/views/Login.vue'
 import Register from '@/views/Register.vue'
 import Admin from '@/views/Admin/Admin.vue'
 import User from '@/views/User/User.vue'
+import EditUsers from '@/views/Admin/EditUsers.vue'
+import RolesCreate from '@/views/Admin/RolesCreate.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -20,12 +22,26 @@ const router = createRouter({
     {
       path: '/admin',
       name: 'admin',
-      component: Admin
+      component: Admin,
+      meta: {requiresAuth: true}
     },
     {
-      path: '/user',
+      path: '/users',
       name: 'user',
-      component: User
+      component: User,
+      meta: {requiresAuth: true}
+    },
+    {
+      path: '/users/:id/edit',
+      name: 'edit',
+      component: EditUsers,
+      meta: {requiresAuth: true}
+    },
+    {
+      path: '/roles/create',
+      name: 'create',
+      component: RolesCreate,
+      meta: {requiresAuth: true}
     }
 
   ]

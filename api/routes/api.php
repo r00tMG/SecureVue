@@ -21,10 +21,11 @@ Route::post('login',[AuthController::class,'login']);
 Route::post('register',[UserController::class,'store']);
 
 Route::get('permissions',[\App\Http\Controllers\PermissionController::class,'index']);
-Route::apiResource('users',UserController::class);
-Route::apiResource('roles',\App\Http\Controllers\api\RoleController::class);
 
+//Route::get('/users/{user}',[UserController::class,'show']);
+
+    Route::apiResource('roles',\App\Http\Controllers\api\RoleController::class);
 Route::group(['middleware' => ['auth:sanctum']],function () {
-
+    Route::resource('users',UserController::class);
 
 });

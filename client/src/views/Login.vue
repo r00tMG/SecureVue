@@ -30,7 +30,7 @@ export default {
         }else if(data.token && data.user.role[0].name === "user"){
           localStorage.setItem('token',data.token)
           localStorage.setItem('role',data.user)
-          await router.push('/user')
+          await router.push('/users')
         }else {
           alert('Authentification échouée')
         }

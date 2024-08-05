@@ -64,9 +64,9 @@ class RoleController extends Controller
         // Associer les permissions si elles existent
         if ($request->has('permissions')) {
             $permissions = Permission::whereIn('name', $request->permissions)->get();
-            $role->permissions()->sync($permissions);
+            logger('Permission:' . json_encode($permissions));
+            $role->permissions()->sync($permissions->pluck('id'));
         }
-
         // Retourner une réponse JSON
         return response()->json([
             'error' => false,

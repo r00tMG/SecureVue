@@ -63,13 +63,15 @@ class UserController extends Controller
             $validator = Validator::make($request->all(), [
                 'name' => ['required', 'string', 'max:255'],
                 'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
-                'password' => ['required'],
-                'roles' => ['required', 'array'],
-                'roles.*' => ['string', 'exists:roles,name'],
-                'permissions' => ['required','array'],
-                'permissions.*' => ['string', 'exists:permissions,name']
+                'password' => ['required','confirmed'],
+                //'roles' => ['required', 'array'],
+                //'roles.*' => ['string', 'exists:roles,name'],
+                //'permissions' => ['required','array'],
+                //'permissions.*' => ['string', 'exists:permissions,name']
             ]);
             logger('Request data:'. json_encode($validator));
+            //dd($validator->fails());
+
             if ($validator->fails()) {
                 return response()->json([
                     'error' => true,
@@ -77,7 +79,6 @@ class UserController extends Controller
                     'errors' => $validator->errors()
                 ], Response::HTTP_BAD_REQUEST);
             }
-
             $user = User::create([
                 'name' => $request->name,
                 'email' => $request->email,
@@ -118,11 +119,25 @@ class UserController extends Controller
      * Display the specified resource.
      *
      * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\JsonResponse
      */
     public function show($id)
     {
-        //
+        //dd($id);
+        $user = User::find($id);
+        logger("User".json_encode($user));
+        if ($user == null)
+        {
+            return \response()->json([
+                'error' => true,
+                'message' => "Aucun utilsateur n'a été trouvé",
+            ], Response::HTTP_NOT_FOUND);
+        }
+        return \response()->json([
+            'error' => false,
+            'message' => "Votre requête a réussie avec succés",
+            'user' => new UserResource($user)
+        ], Response::HTTP_OK);
     }
 
     /**
@@ -130,21 +145,91 @@ class UserController extends Controller
      *
      * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\JsonResponse
      */
     public function update(Request $request, $id)
     {
-        //
+        try {
+            $user = User::find($id);
+            //dd($user);
+            $validator = Validator::make($request->all(), [
+                'name' => ['required', 'string', 'max:255'],
+                'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
+                'password' => ['required','confirmed'],
+                'roles' => ['required', 'array'],
+                'roles.*' => ['string', 'exists:roles,name'],
+                //'permissions' => ['required','array'],
+                //'permissions.*' => ['string', 'exists:permissions,name']
+            ]);
+            //dd($validator->fails());
+            logger('Request data:'. json_encode($validator));
+            if ($validator->fails()) {
+                return response()->json([
+                    'error' => true,
+                    'message' => 'Validation des données échouée',
+                    'errors' => $validator->errors()
+                ], Response::HTTP_BAD_REQUEST);
+            }
+
+            $user->update([
+                'name' => $request->name,
+                'email' => $request->email,
+                'password' => Hash::make($request->password),
+            ]);
+            //dd($user);
+            logger('Request data:'. json_encode($request->has('roles')));
+
+            // Attribution des rôles
+            if ($request->has('roles')) {
+                $roles = Role::whereIn('name', $request->roles)->get();
+                logger('Role:'. json_encode($roles));
+                $user->roles()->sync($roles->pluck('id'));
+
+            }
+
+            // Attribution des permissions
+           /* if ($request->has('permissions')) {
+                $permissions = Permission::whereIn('name', $request->permissions)->get();
+                logger('Permission:'. json_encode($permissions));
+                $user->permissions()->sync($permissions->pluck('id'));
+            }*/
+
+            return response()->json([
+                'error' => false,
+                'message' => "L'utilisateur est enregistré avec succès",
+                'user' => $user
+            ], Response::HTTP_CREATED);
+        } catch (\Exception $e) {
+            Log::error('Exception:', ['message' => $e->getMessage()]);
+            return response()->json([
+                'error' => true,
+                'message' => 'Une erreur est survenue lors de l\'enregistrement de l\'utilisateur.'
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
     }
 
     /**
      * Remove the specified resource from storage.
      *
      * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\JsonResponse
      */
     public function destroy($id)
     {
-        //
+
+        $user = User::find($id);
+        //dd($user);
+        if ($user == null)
+        {
+            return \response()->json([
+                'error' => true,
+                'message' => "Aucun utilsateur n'a été trouvé",
+            ], Response::HTTP_NOT_FOUND);
+        }
+        $user->delete();
+        return \response()->json([
+            'error' => false,
+            'message' => "l'utilsateur a bien été supprimé",
+        ], Response::HTTP_NO_CONTENT);
     }
 }
