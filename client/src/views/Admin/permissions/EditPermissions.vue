@@ -5,70 +5,33 @@ import { useRoute, useRouter } from 'vue-router'
 import axios from 'axios'
 
 export default {
-  name: 'EditProfile',
+  name: 'EditRoles',
   components: { Navbar },
   setup(){
-    const address = ref('')
-    const hobbies = ref('')
-    const job = ref('')
-    const skill = ref('')
-    const user_id = ref('')
-    const profile = ref({})
+    const name = ref('')
+    const permission = ref([])
     const router = useRouter()
     let token = localStorage.getItem('token')
-    let getUser = JSON.parse(localStorage.getItem('user'))
-    console.log(getUser)
 
     const route = useRoute()
     //console.log(route.params.id)
     onMounted(async () => {
-      const r = await axios.get(`http://localhost:8000/api/profiles/${route.params.id}`,{
+      const r = await axios.get(`http://localhost:8000/api/permissions/${route.params.id}`,{
         headers: {
           'Accept':'application/json',
           'Authorization':`Bearer ${token}`
         }
       })
-      profile.value = await r.data
-      console.log(profile.value.profiles)
-      address.value = profile.value.profiles[0].address
-      hobbies.value = profile.value.profiles[0].hobbies
-      job.value = profile.value.profiles[0].job
-      skill.value = profile.value.profiles[0].skill
-      user_id.value = getUser.id
-
+      permission.value = await r.data
+      console.log(permission.value)
+      name.value = permission.value.permission.name
+      console.log(name.value)
     })
-    // Collection des roles
-    /*onMounted(async () => {
-      const r = await axios.get('http://localhost:8000/api/roles',{
-        headers: {
-          'Accept':'application/json',
-          'Authorization':`Bearer ${token}`
-        }
-      })
-      getRoles.value = await r.data
-      // console.log(getRoles.value.roles[0])
 
-    })*/
-
-    // Collection des permissions
-    /* onMounted(async () => {
-       const r = await axios.get('http://localhost:8000/api/permissions',{
-         headers: {'Accept':'application/json'}
-       })
-       getPermissions.value = await r.data
-      // console.log(getPermissions.value[0].name)
-
-     })
- */
-    //
     const onSubmit = async () => {
       try{
-        const response = await axios.put(`http://localhost:8000/api/profiles/${route.params.id}`,{
-          address:address.value,
-          hobbies: hobbies.value,
-          job: job.value,
-          skill:skill.value,
-          user_id:getUser.id
+        const response = await axios.put(`http://localhost:8000/api/permissions/${route.params.id}`,{
+          name:name.value,
 
         },{
           headers: {
@@ -78,12 +41,12 @@ export default {
 
         })
 
-        profile.value =await response.data
-        console.log(profile.value)
-        if(profile)
+        permission.value =await response.data
+        console.log(permission.value)
+        if(permission.value.permissions.length !== 0)
         {
-          alert('Votre profile a été bien modifié')
-          await router.push('/users')
+          alert('La permission a été bien modifié')
+          await router.push('/admin')
         }else{
           alert('Modification échoué, Rééssayer')
         }
@@ -94,11 +57,7 @@ export default {
 
     }
     return{
-      address,
-      hobbies,
-      job,
-      skill,
-      user_id,
+      name,
       onSubmit
     }
   }
@@ -108,36 +67,15 @@ export default {
 <template>
   <Navbar />
   <div class="kotak_login">
-    <p class="tulisan_login">Modifier votre profile Utilisateur</p>
+    <p class="tulisan_login">Modifier une Permission</p>
 
     <img src="https://freedesignfile.com/upload/2017/07/Hand-drawn-coffee-logos-design-vector-set-07.jpg" alt="coffee">
 
     <form @submit.prevent="onSubmit">
-      <div hidden="true" class="form-group mb-3">
-        <label>User</label>
-        <input type="text" v-model="user_id" name="user_id" class="form_login" placeholder="User..">
-      </div>
       <div class="form-group mb-3">
-        <label>Address</label>
-        <input type="text" v-model="address" name="address" class="form_login" placeholder="Address..">
+        <label>name</label>
+        <input type="text" v-model="name" name="name" class="form_login" placeholder="Name..">
       </div>
-
-      <div class="form-group mb-3">
-        <label>Hobbies</label>
-        <input type="text" v-model="hobbies" name="hobbies" class="form_login" placeholder="Hobbies..">
-      </div>
-
-      <div class="form-group mb-3">
-        <label>Job</label>
-        <input type="text" v-model="job"	name="job" class="form_login" placeholder="Job ..">
-      </div>
-      <div class="form-group mb-3">
-        <div class="form-group mb-3">
-          <label>Skill</label>
-          <input type="text" v-model="skill" name="skill" class="form_login" placeholder="Skill..">
-        </div>
-      </div>
-
       <input type="submit" class="tombol_login" value="Update">
     </form>
 

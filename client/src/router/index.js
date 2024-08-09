@@ -3,10 +3,14 @@ import Login from '@/views/Login.vue'
 import Register from '@/views/Register.vue'
 import Admin from '@/views/Admin/Admin.vue'
 import User from '@/views/User/User.vue'
-import EditUsers from '@/views/Admin/EditUsers.vue'
-import RolesCreate from '@/views/Admin/RolesCreate.vue'
-import EditRoles from '@/views/Admin/EditRoles.vue'
+import EditUsers from '@/views/Admin/users/EditUsers.vue'
+import RolesCreate from '@/views/Admin/roles/RolesCreate.vue'
+import EditRoles from '@/views/Admin/roles/EditRoles.vue'
 import EditProfile from '@/views/User/EditProfile.vue'
+import CreateProfile from '@/views/User/CreateProfile.vue'
+import PermissionsCreate from '@/views/Admin/permissions/PermissionsCreate.vue'
+import EditPermissions from '@/views/Admin/permissions/EditPermissions.vue'
+import LoginToUserPage from '@/views/User/LoginToUserPage.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -55,6 +59,30 @@ const router = createRouter({
       path: '/profile/:id/edit',
       name: 'profile/edit',
       component: EditProfile,
+      meta: {requiresAuth: true}
+    },
+    {
+      path: '/create/profile',
+      name: 'profile/create',
+      component: CreateProfile,
+      meta: {requiresAuth: true}
+    },
+    {
+      path: '/permissions/create',
+      name: 'permissions.create',
+      component: PermissionsCreate,
+      meta: {requiresAuth: true}
+    },
+    {
+      path: '/permissions/:id/edit',
+      name: 'permissions.edit',
+      component: EditPermissions,
+      meta: {requiresAuth: true}
+    },
+    {
+      path: '/loginToUserPage',
+      name: 'loginToUserPage',
+      component: LoginToUserPage,
       meta: {requiresAuth: true}
     }
   ]

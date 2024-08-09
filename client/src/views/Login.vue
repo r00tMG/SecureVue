@@ -1,5 +1,5 @@
 <script>
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
 import axios from 'axios'
 import { useRouter } from 'vue-router'
 
@@ -9,6 +9,7 @@ export default {
     const email = ref('')
     const password = ref('')
     const router = useRouter()
+
     const onLogin = async () => {
       try{
         const response = await axios.post('http://localhost:8000/api/login', {
@@ -20,7 +21,7 @@ export default {
         })
 
         const data = response.data
-        console.log(data.user.role)
+        //console.log(data.user.role)
         //await router.push('/register')
        if(data.token && (data.user.role[0].name === "admin" || data.user.role[0].name === "super-admin"))
         {
@@ -32,7 +33,9 @@ export default {
           localStorage.setItem('token',data.token)
           localStorage.setItem('role',JSON.stringify(data.user.role))
           localStorage.setItem('user',JSON.stringify(data.user))
-          await router.push('/users')
+         //console.log(data.user)
+          //await router.push('/loginToUserPage')
+         await checkUserProfile(data.token)
         }else {
           alert('Authentification échouée')
         }
@@ -40,6 +43,25 @@ export default {
         console.log('Erreur: Connexion échoué')
       }
 
+    }
+    const profile = ref([])
+    const checkUserProfile = async (tok) =>{
+      const r = await axios.get('http://localhost:8000/api/profiles',{
+        headers:{
+          'Accept':'application/json',
+          'Authorization':`Bearer ${tok}`
+        }
+      })
+      profile.value = await r.data
+      console.log(profile.value.profiles)
+      if (profile.value.profiles.length !== 0)
+      {
+        //localStorage.setItem('profile', JSON.stringify(profile.profiles))
+        await router.push('/users')
+      }else {
+        await router.push('/create/profile')
+
+      }
     }
     return{
       email,
@@ -65,6 +87,7 @@ export default {
           <input type="password" v-model="password"	name="password" class="form_login" placeholder="Password ..">
 
           <input type="submit" class="tombol_login" value="LOGIN">
+          <p>Si vous n'êtes pas inscrite veuillez<router-link to="/register"> cliquer ici</router-link></p>
         </form>
 
     </div>

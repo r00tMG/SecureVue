@@ -3,12 +3,13 @@ import { onMounted, ref } from 'vue'
 import axios from 'axios'
 import Navbar from '@/components/Navbar.vue'
 import UsersTable from '@/components/UsersTable.vue'
-import EditUsers from '@/views/Admin/EditUsers.vue'
+import EditUsers from '@/views/Admin/users/EditUsers.vue'
 import RolesTable from '@/components/RolesTable.vue'
+import PermissionsTable from '@/components/PermissionsTable.vue'
 
 export default {
   name: 'Admin',
-  components: { RolesTable, EditUsers, UsersTable, Navbar },
+  components: { PermissionsTable, RolesTable, EditUsers, UsersTable, Navbar },
   setup(){
     const role = localStorage.getItem('role')
     console.log(JSON.parse(role))
@@ -39,9 +40,9 @@ export default {
           <li class="color-green col-lg-4">
             <a href="#2b" data-toggle="tab"><i class="fa fa-bus"></i>Rôles</a>
           </li>
-<!--          <li class="color-red col-lg-4">
-            <a href="#3b" data-toggle="tab"><i class="fa fa-futbol-o"></i>Tap 3</a>
-          </li>-->
+          <li class="color-red col-lg-4">
+            <a href="#3b" data-toggle="tab"><i class="fa fa-futbol-o"></i>Permissions</a>
+          </li>
         </ul>
         <div class="tab-content clearfix" >
           <div class="tab-pane active" id="1b">
@@ -53,7 +54,8 @@ export default {
             <RolesTable />
           </div>
           <div class="tab-pane" id="3b">
-            <h3>We applied clearfix to the tab-content to rid of the gap between the tab and the content</h3>
+            <h3><router-link to="/permissions/create" class="btn btn-sm bg-primary">Create</router-link> Gestion des Permissions</h3>
+            <PermissionsTable />
           </div>
         </div>
       </div>

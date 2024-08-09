@@ -1,39 +1,53 @@
 <script>
 import { onMounted, ref } from 'vue'
 import axios from 'axios'
+import { useRoute } from 'vue-router'
+import Navbar from '@/components/Navbar.vue'
 
 export default {
   name: 'User',
+  components: { Navbar },
   setup(){
     let token = localStorage.getItem('token')
     const user = JSON.parse(localStorage.getItem('user'))
-    console.log(user)
-    //const data = ref({})
+    //console.log(user.role)
+    const roles = user.role
+    //console.log(user.id)
+    const profile = ref({ profiles: [] })
+
     onMounted(async () => {
-      const r = await axios.get(`http://localhost:8000/api/users/${user.id}`,{
-        headers:{
-          'Accept':'application/json',
-          'Authorization':`Bearer ${token}`
-        }
-      })
-        data.value = await r.data
-        console.log(data.value.user)
+      try {
+        const response = await axios.get(`http://localhost:8000/api/profiles`, {
+          headers: {
+            'Accept': 'application/json',
+            'Authorization': `Bearer ${token}`
+          }
+        })
+        profile.value = await response.data
+        //console.log(profile.value.profiles)
+      } catch (error) {
+        console.error('Erreur lors de la récupération des profils:', error)
+      }
+
     })
     return{
-      user
+      profile,
+      roles
     }
   }
 }
 
 </script>
 
-<template v-if="data.user">
-
+<template  >
+  <Navbar />
   <!-- Navbar top -->
-  <div class="navbar-top">
+  <div v-if="roles" v-for="role in roles">
+    <div class="navbar-top">
     <div class="title">
       <h1>Profile</h1>
     </div>
+
 
     <!-- Navbar -->
     <ul>
@@ -59,113 +73,115 @@ export default {
   </div>
   <!-- End -->
 
-  <!-- Sidenav -->
-  <div class="sidenav" >
-    <div class="profile">
-      <img src="https://imdezcode.files.wordpress.com/2020/02/imdezcode-logo.png" alt="" width="100" height="100">
 
-      <div class="name">
-        {{ user.name }}
+
+    <div class="sidenav" v-if="profile.profiles.length > 0" v-for="profile in profile.profiles">
+      <div class="profile" v-if="role.permissions" v-for="permission in role.permissions">
+        <img src="https://imdezcode.files.wordpress.com/2020/02/imdezcode-logo.png" alt="" width="100" height="100">
+        <div class="name" v-if="permission.name === 'profile-read'">
+          {{profile.user.name}}
+        </div>
+        <div class="job" v-if="permission.name === 'profile-read'">
+          {{profile.user.job}}
+        </div>
       </div>
-      <div class="job">
-        Web Developer
+
+      <div class="sidenav-url" >
+        <div class="url" v-if="role.permissions" v-for="permission in role.permissions">
+          <router-link v-if="permission.name === 'profile-update'" :to="`/profile/${profile.id}/edit`"  class="active">Edit Profile</router-link>
+          <hr align="center">
+        </div>
+        <div class="url">
+          <a href="#settings">Settings</a>
+          <hr align="center">
+        </div>
       </div>
     </div>
 
-    <div class="sidenav-url">
-      <div class="url">
-        <router-link :to="`/profile/${user.id}/edit`"  class="active">Edit Profile</router-link>
-        <hr align="center">
-      </div>
-      <div class="url">
-        <a href="#settings">Settings</a>
-        <hr align="center">
-      </div>
-    </div>
-  </div>
-  <!-- End -->
-
-  <!-- Main -->
-  <div class="main" >
+    <div class="main" v-if="profile.profiles.length > 0" v-for="profile in profile.profiles">
     <h2>IDENTITY</h2>
-    <div class="card">
-      <div class="card-body">
+    <div class="card" v-if="role.permissions" v-for="permission in role.permissions">
+      <div class="card-body" v-if="permission.name === 'profile-read'">
         <i class="fa fa-pen fa-xs edit"></i>
-        <table>
+        <table >
           <tbody>
           <tr>
             <td>Name</td>
             <td>:</td>
-            <td>{{ user.name }}</td>
+            <td>{{profile.user.name}}</td>
           </tr>
           <tr>
             <td>Email</td>
             <td>:</td>
-            <td>{{ user.email }}</td>
+            <td> {{profile.user.email}}</td>
           </tr>
-<!--          <tr>
+          <tr>
             <td>Address</td>
             <td>:</td>
-            <td>Bali, Indonesia</td>
+            <td>{{ profile.address }}</td>
           </tr>
           <tr>
             <td>Hobbies</td>
             <td>:</td>
-            <td>Diving, Reading Book</td>
+            <td>{{ profile.hobbies }}</td>
           </tr>
           <tr>
             <td>Job</td>
             <td>:</td>
-            <td>Web Developer</td>
+            <td>{{ profile.job }}</td>
           </tr>
           <tr>
             <td>Skill</td>
             <td>:</td>
-            <td>PHP, HTML, CSS, Java</td>
-          </tr>-->
+            <td>{{ profile.skill }}</td>
+          </tr>
           </tbody>
         </table>
       </div>
+      <div class="card">
+        <p class="text-danger text-center">Vous n'êtes pas autorisé à voir le contenu de cette section</p>
+      </div>
     </div>
 
-<!--    <h2>SOCIAL MEDIA</h2>
-    <div class="card">
-      <div class="card-body">
-        <i class="fa fa-pen fa-xs edit"></i>
-        <div class="social-media">
-                    <span class="fa-stack fa-sm">
-                        <i class="fas fa-circle fa-stack-2x"></i>
-                        <i class="fab fa-facebook fa-stack-1x fa-inverse"></i>
-                    </span>
-          <span class="fa-stack fa-sm">
-                        <i class="fas fa-circle fa-stack-2x"></i>
-                        <i class="fab fa-twitter fa-stack-1x fa-inverse"></i>
-                    </span>
-          <span class="fa-stack fa-sm">
-                        <i class="fas fa-circle fa-stack-2x"></i>
-                        <i class="fab fa-instagram fa-stack-1x fa-inverse"></i>
-                    </span>
-          <span class="fa-stack fa-sm">
-                        <i class="fas fa-circle fa-stack-2x"></i>
-                        <i class="fab fa-invision fa-stack-1x fa-inverse"></i>
-                    </span>
-          <span class="fa-stack fa-sm">
-                        <i class="fas fa-circle fa-stack-2x"></i>
-                        <i class="fab fa-github fa-stack-1x fa-inverse"></i>
-                    </span>
-          <span class="fa-stack fa-sm">
-                        <i class="fas fa-circle fa-stack-2x"></i>
-                        <i class="fab fa-whatsapp fa-stack-1x fa-inverse"></i>
-                    </span>
-          <span class="fa-stack fa-sm">
-                        <i class="fas fa-circle fa-stack-2x"></i>
-                        <i class="fab fa-snapchat fa-stack-1x fa-inverse"></i>
-                    </span>
-        </div>
-      </div>
-    </div>-->
+<!--   <h2>SOCIAL MEDIA</h2>
+        <div class="card">
+          <div class="card-body">
+            <i class="fa fa-pen fa-xs edit"></i>
+            <div class="social-media">
+                        <span class="fa-stack fa-sm">
+                            <i class="fas fa-circle fa-stack-2x"></i>
+                            <i class="fab fa-facebook fa-stack-1x fa-inverse"></i>
+                        </span>
+              <span class="fa-stack fa-sm">
+                            <i class="fas fa-circle fa-stack-2x"></i>
+                            <i class="fab fa-twitter fa-stack-1x fa-inverse"></i>
+                        </span>
+              <span class="fa-stack fa-sm">
+                            <i class="fas fa-circle fa-stack-2x"></i>
+                            <i class="fab fa-instagram fa-stack-1x fa-inverse"></i>
+                        </span>
+              <span class="fa-stack fa-sm">
+                            <i class="fas fa-circle fa-stack-2x"></i>
+                            <i class="fab fa-invision fa-stack-1x fa-inverse"></i>
+                        </span>
+              <span class="fa-stack fa-sm">
+                            <i class="fas fa-circle fa-stack-2x"></i>
+                            <i class="fab fa-github fa-stack-1x fa-inverse"></i>
+                        </span>
+              <span class="fa-stack fa-sm">
+                            <i class="fas fa-circle fa-stack-2x"></i>
+                            <i class="fab fa-whatsapp fa-stack-1x fa-inverse"></i>
+                        </span>
+              <span class="fa-stack fa-sm">
+                            <i class="fas fa-circle fa-stack-2x"></i>
+                            <i class="fab fa-snapchat fa-stack-1x fa-inverse"></i>
+                        </span>
+            </div>
+          </div>
+        </div>-->
   </div>
 
+  </div>
 
 </template>
 

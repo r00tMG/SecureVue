@@ -22,11 +22,16 @@ Route::post('login',[AuthController::class,'login']);
 Route::post('register',[UserController::class,'store']);
 
 Route::get('permissions',[\App\Http\Controllers\PermissionController::class,'index']);
+Route::post('permissions',[\App\Http\Controllers\PermissionController::class,'store']);
+Route::get('permissions/{permission}',[\App\Http\Controllers\PermissionController::class,'show']);
+Route::put('permissions/{permission}',[\App\Http\Controllers\PermissionController::class,'update']);
+Route::delete('permissions/{permission}',[\App\Http\Controllers\PermissionController::class,'destroy']);
 
-//Route::get('/users/{user}',[UserController::class,'show']);
+Route::get('/getProfile',[\App\Http\Controllers\ProfileController::class,'index']);
 
 Route::group(['middleware' => ['auth:sanctum']],function () {
     Route::apiResource('roles',RoleController::class);
     Route::resource('users',UserController::class);
+    Route::apiResource('profiles',\App\Http\Controllers\ProfileController::class);
 
 });

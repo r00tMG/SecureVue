@@ -1,104 +1,49 @@
 <script>
 import Navbar from '@/components/Navbar.vue'
 import { onMounted, ref } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
 import axios from 'axios'
+import { useRouter } from 'vue-router'
 
 export default {
-  name: 'EditProfile',
+  name: 'CreateProfile',
   components: { Navbar },
   setup(){
+    const user = JSON.parse(localStorage.getItem('user'))
+    const user_id = ref(user.id)
     const address = ref('')
     const hobbies = ref('')
     const job = ref('')
     const skill = ref('')
-    const user_id = ref('')
-    const profile = ref({})
+    const profile = ref([])
     const router = useRouter()
     let token = localStorage.getItem('token')
-    let getUser = JSON.parse(localStorage.getItem('user'))
-    console.log(getUser)
-
-    const route = useRoute()
-    //console.log(route.params.id)
-    onMounted(async () => {
-      const r = await axios.get(`http://localhost:8000/api/profiles/${route.params.id}`,{
+    const onSubmit = (async () => {
+      const r = await axios.post('http://localhost:8000/api/profiles',{
+        user_id:user_id.value,
+        address:address.value,
+        hobbies:hobbies.value,
+        job:job.value,
+        skill:skill.value
+      },{
         headers: {
-          'Accept':'application/json',
+          'Content-Type':'application/json',
           'Authorization':`Bearer ${token}`
         }
       })
       profile.value = await r.data
-      console.log(profile.value.profiles)
-      address.value = profile.value.profiles[0].address
-      hobbies.value = profile.value.profiles[0].hobbies
-      job.value = profile.value.profiles[0].job
-      skill.value = profile.value.profiles[0].skill
-      user_id.value = getUser.id
-
-    })
-    // Collection des roles
-    /*onMounted(async () => {
-      const r = await axios.get('http://localhost:8000/api/roles',{
-        headers: {
-          'Accept':'application/json',
-          'Authorization':`Bearer ${token}`
-        }
-      })
-      getRoles.value = await r.data
-      // console.log(getRoles.value.roles[0])
-
-    })*/
-
-    // Collection des permissions
-    /* onMounted(async () => {
-       const r = await axios.get('http://localhost:8000/api/permissions',{
-         headers: {'Accept':'application/json'}
-       })
-       getPermissions.value = await r.data
-      // console.log(getPermissions.value[0].name)
-
-     })
- */
-    //
-    const onSubmit = async () => {
-      try{
-        const response = await axios.put(`http://localhost:8000/api/profiles/${route.params.id}`,{
-          address:address.value,
-          hobbies: hobbies.value,
-          job: job.value,
-          skill:skill.value,
-          user_id:getUser.id
-
-        },{
-          headers: {
-            'Content-Type':'application/json',
-            'Authorization':`Bearer ${token}`
-          },
-
-        })
-
-        profile.value =await response.data
-        console.log(profile.value)
-        if(profile)
-        {
-          alert('Votre profile a été bien modifié')
-          await router.push('/users')
-        }else{
-          alert('Modification échoué, Rééssayer')
-        }
-
-      }catch (e) {
-        console.log('Erreur: Modification échoué')
+      console.log(profile.value)
+      if (profile.value)
+      {
+        alert('Votre profile a été bien ajouté, cliquez \'ok\' pour y acccéder')
+        await router.push('/users')
       }
-
-    }
+    })
     return{
+      user_id,
       address,
       hobbies,
       job,
       skill,
-      user_id,
       onSubmit
     }
   }
@@ -106,9 +51,9 @@ export default {
 </script>
 
 <template>
-  <Navbar />
+<Navbar />
   <div class="kotak_login">
-    <p class="tulisan_login">Modifier votre profile Utilisateur</p>
+    <p class="tulisan_login">Créer votre profile Utilisateur</p>
 
     <img src="https://freedesignfile.com/upload/2017/07/Hand-drawn-coffee-logos-design-vector-set-07.jpg" alt="coffee">
 
@@ -138,7 +83,7 @@ export default {
         </div>
       </div>
 
-      <input type="submit" class="tombol_login" value="Update">
+      <input type="submit" class="tombol_login" value="Create">
     </form>
 
   </div>
